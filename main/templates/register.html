@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Registrasi</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            width: 50%;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+        }
+        input, textarea {
+            width: 100%;
+            padding: 8px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Form Registrasi</h2>
+    <form action="#" method="POST">
+        {% csrf_token %}
+        
+        <label for="username">Nama:</label>
+        <input type="text" id="username" name="username" required 
+               pattern="[a-zA-Z0-9.,_' -]+" 
+               title="Hanya huruf, angka, dan karakter . , _ ' -">
+    
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" required 
+                pattern="^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$" 
+                title="Minimal 8 karakter, terdiri dari huruf, angka, dan simbol">
+        <label for="tanggal_lahir">Tanggal Lahir:</label>
+        <input type="date" id="tanggal_lahir" name="tanggal_lahir" required 
+               max="2009-01-01"
+               title="Usia minimal 12 tahun">
+    
+        <label for="nomor_hp">Nomor HP:</label>
+        <input type="text" id="nomor_hp" name="nomor_hp" required 
+               pattern="^62[0-9]{6,13}$" 
+               title="Gunakan format 62XXXXXXXX (tanpa +, minimal 8 digit, maksimal 15 digit)">
+    
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" required>
+    
+        <label for="url_blog">URL Blog:</label>
+        <input type="url" id="url_blog" name="url_blog" required>
+    
+        <label for="deskripsi_diri">Deskripsi Diri:</label>
+        <textarea id="deskripsi_diri" name="deskripsi_diri" required minlength="5" maxlength="1000"></textarea>
+    
+        <label for="npwp">NPWP:</label>
+        <input type="text" id="npwp" name="npwp" pattern="^\d{2}\.\d{3}\.\d{3}\.\d{1}-\d{3}\.\d{3}$" 
+               placeholder="XX.XXX.XXX.X-XXX.XXX" required>
+        <small>Format: XX.XXX.XXX.X-XXX.XXX (X adalah angka)</small>
+        <br><br>
+    
+        <!-- Status Sertifikasi -->
+        <label for="status_sertifikasi">Status Sertifikasi:</label>
+        <select id="status_sertifikasi" name="status_sertifikasi" required>
+            <option value="">-- Pilih Status --</option>
+            <option value="Belum">Belum</option>
+            <option value="Sedang">Sedang</option>
+            <option value="Diterima">Diterima</option>
+            <option value="Ditolak">Ditolak</option>
+        </select>
+        <br><br>
+        
+        <button type="submit">Daftar</button>
+    </form>
+</div>
+
+</body>
+</html>
