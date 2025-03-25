@@ -64,7 +64,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from .models import UserProfile  # Ensure this matches your model
 
-# @login_required
+@login_required
 def home_view(request):
     users = UserProfile.objects.all()  # Fetch all users
     return render(request, "home.html", {"users": users})

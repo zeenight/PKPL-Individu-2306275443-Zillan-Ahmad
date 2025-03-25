@@ -39,8 +39,10 @@ class UserProfile(AbstractUser):
         default='Belum'
     )
     tanggal_lahir = models.DateField(
-        help_text="Minimal umur 12 tahun"
+        help_text="Minimal umur 12 tahun",
+        default=date(2000, 1, 1)  # Default ke 1 Januari 2000
     )
+
     nomor_hp = models.CharField(
         max_length=15,
         validators=[phone_validator],
@@ -72,3 +74,12 @@ class UserProfile(AbstractUser):
             min_birth_date = today - timedelta(days=12*365)
             return self.tanggal_lahir <= min_birth_date
         return False
+    
+    def save(self, *args, **kwargs):
+    # Jika user adalah superuser, abaikan validasi tertentu
+        if self.is_superuser:
+            self.npwp = self.npwp or "00.000.000.0-000.000"  # Dummy NPWP
+            self.nomor_hp = self.nomor_hp or "00000000"  # Dummy nomor HP
+            self.deskripsi_diri = self.deskripsi_diri or "Admin user"
+        
+        super().save(*args, **kwargs)
