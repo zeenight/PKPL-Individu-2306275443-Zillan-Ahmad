@@ -6,6 +6,9 @@ from .forms import UserProfileForm  # Import the form
 from django.shortcuts import render, redirect
 from django.contrib.auth import authenticate, login, logout
 from django.contrib import messages
+from django.db import transaction
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import FarmProduct, Order, Shipping
 
 # Create your views here.
 def show_register(request):
@@ -67,4 +70,55 @@ from .models import UserProfile  # Ensure this matches your model
 @login_required
 def home_view(request):
     users = UserProfile.objects.all()  # Fetch all users
-    return render(request, "home.html", {"users": users})
+    ordered_items = Order.objects.filter(buyer=request.user)
+    return render(request, 'home.html', {
+        'user': request.user,
+        'users': users,
+        'shipped_items': ordered_items,
+    })
+
+
+# views.py
+
+@login_required
+@transaction.atomic
+def create_order(request):
+    products = FarmProduct.objects.all()
+
+    if request.method == 'POST':
+        try:
+            product_id = int(request.POST.get('product_id', 0))
+            quantity = int(request.POST.get('quantity', 0))
+            address = request.POST.get('address', '').strip()
+
+            if quantity <= 0:
+                raise ValueError("Jumlah tidak boleh kurang dari 1.")
+
+            if not address:
+                raise ValueError("Alamat pengiriman wajib diisi.")
+
+            product = get_object_or_404(FarmProduct, id=product_id)
+
+            if product.stock < quantity:
+                raise ValueError("Stok tidak mencukupi!")
+
+            # Update stock
+            product.stock -= quantity
+            product.save()
+
+            # Create order & shipping
+            order = Order.objects.create(buyer=request.user, product=product, quantity=quantity)
+            Shipping.objects.create(order=order, address=address)
+
+        except ValueError as ve:
+            return render(request, 'create_order.html', {
+                'products': products,
+                'error': str(ve)
+            })
+        except Exception as e:
+            return render(request, 'create_order.html', {
+                'products': products,
+                'error': 'Terjadi kesalahan tak terduga.'
+            })
+
+    return render(request, 'create_order.html', {'products': products})

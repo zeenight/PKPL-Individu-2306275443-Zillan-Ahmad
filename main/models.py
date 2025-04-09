@@ -4,6 +4,8 @@ from django.db import models
 from django.core.validators import RegexValidator, MinLengthValidator, MaxLengthValidator, EmailValidator, URLValidator
 from django.utils.translation import gettext_lazy as _
 from datetime import date, timedelta
+from django.db import models
+from django.conf import settings 
 
 class UserProfile(AbstractUser):
     # Validasi NPWP (Format: XX.XXX.XXX.X-XXX.XXX)
@@ -83,3 +85,23 @@ class UserProfile(AbstractUser):
             self.deskripsi_diri = self.deskripsi_diri or "Admin user"
         
         super().save(*args, **kwargs)
+
+
+
+class FarmProduct(models.Model):
+    name = models.CharField(max_length=255)
+    stock = models.PositiveIntegerField()
+
+    def __str__(self):
+        return self.name
+
+class Order(models.Model):
+    buyer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
+    product = models.ForeignKey(FarmProduct, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Shipping(models.Model):
+    order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='shipping')
+    address = models.TextField()
+    shipped_at = models.DateTimeField(null=True, blank=True)
